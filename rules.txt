@@ -1,0 +1,29 @@
+- Record a moveslist
+- Check if check
+- Check if check-mate
+
+Special moves
+- Turn rook with king
+- En passand taking
+- Pawn promotion
+
+Inspect
+- Path is free?
+- Enemy piece is taken?
+- King is not checked?
+
+Done:
+Modules
+- Position chess pieces
+- Coordinate
+- Moveslist
+- Move
+- Piece (pawn, bishop, knight, rook, queen, king)
+- Board
+
+Done moves:
+- Move chess pieces
+- Capture opponents piece
+
+Done inspect
+- Square is not occupied by own piece?
