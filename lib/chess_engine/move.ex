@@ -5,11 +5,13 @@ defmodule ChessEngine.Move do
   def move_piece(
         %Board{} = board,
         color,
-        %Position{file: current_position_file, rank: current_position_rank},
-        %Position{file: target_position_file, rank: target_position_rank}
+        current_file,
+        current_rank,
+        target_file,
+        target_rank
       ) do
-    with {:ok, current_position} <- Position.new(current_position_file, current_position_rank),
-         {:ok, target_position} <- Position.new(target_position_file, target_position_rank),
+    with {:ok, current_position} <- Position.new(current_file, current_rank),
+         {:ok, target_position} <- Position.new(target_file, target_rank),
          %Piece{} = piece <- Board.find_piece(board, color, current_position),
          true <- target_not_occupied_by_own_piece?(board, color, target_position) do
       case movement_in_moveset?(piece, %Position{} = target_position) do
