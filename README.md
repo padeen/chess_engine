@@ -7,4 +7,4 @@ Backend chess engine in Elixir with OTP for hosting multiple concurrent games. F
 
 ## Running
 
-ChessEngine is included as a dependency of ChessInterface. Start application through ChessInterface.
+Add ChessEngine to the same parent folder as ChessInterface. Start application through ChessInterface.
