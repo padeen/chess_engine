@@ -1,4 +1,4 @@
-defmodule ChessEngine.DynamicSupervisor do
+defmodule ChessEngine.GameSupervisor do
   use DynamicSupervisor
 
   alias ChessEngine.Game
