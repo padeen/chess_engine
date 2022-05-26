@@ -1,11 +1,10 @@
 defmodule ChessEngine.Game do
-  use GenServer
+  use GenServer, start: {__MODULE__, :start_link, []}, restart: :transient
 
-  alias ChessEngine.{Board, Gamestate, Move}
+  alias ChessEngine.{Board, Gamestate, Move, Position}
 
   @colors [:white, :black]
   @player [:player1, :player2]
-  @timeout_one_hour 3_600_000
 
   def start_link(name) when is_binary(name),
     do: GenServer.start_link(__MODULE__, name, name: via_tuple(name))
@@ -18,6 +17,9 @@ defmodule ChessEngine.Game do
   def select_colors(game, player1_color, player2_color)
       when player1_color in @colors and player2_color in @colors,
       do: GenServer.call(game, {:select_colors, player1_color, player2_color})
+
+  def move_piece(game, color, file, rank),
+    do: GenServer.call(game, {:move_piece, color, file, rank})
 
   def init(name) do
     player1 = %{name: name, color: nil}
@@ -44,6 +46,24 @@ defmodule ChessEngine.Game do
       |> update_player_colors(player1_color, player2_color)
       |> update_gamestate(gamestate)
       |> reply_success(:ok)
+    else
+      :error -> {:reply, :error, state_data}
+    end
+  end
+
+  def handle_call(
+        {:move_piece, player_color, current_file, current_rank, target_file, target_rank},
+        _from,
+        state_data
+      ) do
+    with {:ok, _gamestate} <- Gamestate.check(state_data.gamestate, {:move_piece, player_color}),
+         {:ok, current_position} <- Position.new(current_file, current_rank),
+         {:ok, target_position} <- Position.new(target_file, target_rank) do
+      case Move.move_piece(state_data.board, :white, current_position, target_position) do
+        :captured_opponents_piece -> {:ok, :captured_piece}
+        :no_capture -> {:ok, :no_capture}
+        :movement_not_in_moveset -> :movement_not_in_moveset
+      end
     else
       :error -> {:reply, :error, state_data}
     end

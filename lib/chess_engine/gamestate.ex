@@ -11,7 +11,7 @@ defmodule ChessEngine.Gamestate do
   def check(%Gamestate{state: :select_colors} = gamestate, :select_colors),
     do: {:ok, %Gamestate{state: :player_white_turn}}
 
-  def check(%Gamestate{state: :player_white_turn} = gamestate, {:move_piece, :player1}),
+  def check(%Gamestate{state: :player_white_turn} = gamestate, {:move_piece, :player_white}),
     do: {:ok, %Gamestate{state: :player_black_turn}}
 
   def check(%Gamestate{state: :player1_turn} = gamestate, {:check_mate_or_not, check_mate_or_not}) do
@@ -21,7 +21,7 @@ defmodule ChessEngine.Gamestate do
     end
   end
 
-  def check(%Gamestate{state: :player_black_turn} = gamestate, {:move_piece, :player2}),
+  def check(%Gamestate{state: :player_black_turn} = gamestate, {:move_piece, :player_black}),
     do: {:ok, %Gamestate{state: :player_white_turn}}
 
   def check(
