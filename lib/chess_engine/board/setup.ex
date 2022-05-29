@@ -5,16 +5,7 @@ defmodule ChessEngine.Board.Setup do
 
   @files Position.files()
 
-  @pieces %{
-    a: :rook,
-    b: :knight,
-    c: :bishop,
-    d: :queen,
-    e: :king,
-    f: :bishop,
-    g: :knight,
-    h: :rook
-  }
+  @pieces ~w[rook knight bishop queen king bishop knight rook]a
 
   def start_position(board) do
     board
@@ -26,29 +17,35 @@ defmodule ChessEngine.Board.Setup do
 
   defp set_pawns(board, :white) do
     @files
-    |> Enum.map(fn file -> create_position(file, 2) end)
-    |> Enum.map(fn position -> create_piece(:pawn, :white, position) end)
-    |> Enum.reduce(board, fn pawn, board -> position_piece(board, pawn) end)
+    |> Enum.map(fn file -> {create_position(file, 2), create_piece(:pawn, :white)} end)
+    |> Enum.reduce(board, fn {pawn, position}, board ->
+      position_piece(board, {pawn, position})
+    end)
   end
 
   defp set_pawns(board, :black) do
     @files
-    |> Enum.map(fn file -> create_position(file, 7) end)
-    |> Enum.map(fn position -> create_piece(:pawn, :black, position) end)
-    |> Enum.reduce(board, fn pawn, board -> position_piece(board, pawn) end)
+    |> Enum.map(fn file -> {create_position(file, 7), create_piece(:pawn, :black)} end)
+    |> Enum.reduce(board, fn {pawn, position}, board ->
+      position_piece(board, {pawn, position})
+    end)
   end
 
   defp set_other_pieces(board, :white) do
-    Enum.reduce(@pieces, board, fn {file, type}, board ->
-      position = create_position(to_string(file), 1)
-      position_piece(board, create_piece(type, :white, position))
+    @files
+    |> Enum.zip(@pieces)
+    |> Enum.map(fn {file, type} -> {create_position(file, 1), create_piece(type, :white)} end)
+    |> Enum.reduce(board, fn {piece, position}, board ->
+      position_piece(board, {piece, position})
     end)
   end
 
   defp set_other_pieces(board, :black) do
-    Enum.reduce(@pieces, board, fn {file, type}, board ->
-      position = create_position(to_string(file), 8)
-      position_piece(board, create_piece(type, :black, position))
+    @files
+    |> Enum.zip(@pieces)
+    |> Enum.map(fn {file, type} -> {create_position(file, 8), create_piece(type, :black)} end)
+    |> Enum.reduce(board, fn {piece, position}, board ->
+      position_piece(board, {piece, position})
     end)
   end
 
@@ -57,8 +54,8 @@ defmodule ChessEngine.Board.Setup do
     position
   end
 
-  defp create_piece(type, color, position) do
-    {:ok, piece} = Piece.new(type, color, position)
+  defp create_piece(type, color) do
+    {:ok, piece} = Piece.new(type, color)
     piece
   end
 end

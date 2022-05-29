@@ -4,7 +4,7 @@ defmodule ChessEngine.Position do
   @enforce_keys [:rank, :file]
   defstruct [:rank, :file]
 
-  @files ["a", "b", "c", "d", "e", "f", "g", "h"]
+  @files ~w[a b c d e f g h]
   @ranks 1..8
 
   def new(file, rank) when file in @files and rank in @ranks,

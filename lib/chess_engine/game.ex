@@ -18,8 +18,12 @@ defmodule ChessEngine.Game do
       when player1_color in @colors and player2_color in @colors,
       do: GenServer.call(game, {:select_colors, player1_color, player2_color})
 
-  def move_piece(game, color, file, rank),
-    do: GenServer.call(game, {:move_piece, color, file, rank})
+  def move_piece(game, player_color, current_file, current_rank, target_file, target_rank),
+    do:
+      GenServer.call(
+        game,
+        {:move_piece, player_color, current_file, current_rank, target_file, target_rank}
+      )
 
   def init(name) do
     player1 = %{name: name, color: nil}
