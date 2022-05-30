@@ -30,8 +30,14 @@ defmodule ChessEngine.Board do
   def position_piece(board, {%Position{} = position, %Piece{color: :black} = piece}),
     do: put_in(board.pieces_black[position], piece)
 
-  def capture_piece(board, color, target_position) do
-    piece = Board.find_piece(board, color, target_position)
+  def capture_piece(board, :white, target_position) do
+    piece = Board.find_piece(board, :white, target_position)
+    board = update_in(board.pieces_white, &Map.delete(&1, target_position))
+    put_in(board.captured_pieces_white, piece)
+  end
+
+  def capture_piece(board, :black, target_position) do
+    piece = Board.find_piece(board, :black, target_position)
     board = update_in(board.pieces_black, &Map.delete(&1, target_position))
     put_in(board.captured_pieces_black, piece)
   end
