@@ -1,3 +1,3 @@
-alias ChessEngine.{Board, Game, Move, Position}
+alias ChessEngine.{Board, Game, GameSupervisor, Move, Position}
 
 board = Board.start_new()

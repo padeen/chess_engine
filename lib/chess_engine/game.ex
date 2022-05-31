@@ -5,6 +5,7 @@ defmodule ChessEngine.Game do
 
   @colors [:white, :black]
   @player [:player1, :player2]
+  @timeout 1000 * 60 * 60
 
   def start_link(name) when is_binary(name),
     do: GenServer.start_link(__MODULE__, name, name: via_tuple(name))
@@ -30,7 +31,8 @@ defmodule ChessEngine.Game do
     player2 = %{name: nil, color: nil}
 
     {:ok,
-     %{player1: player1, player2: player2, board: Board.start_new(), gamestate: Gamestate.new()}}
+     %{player1: player1, player2: player2, board: Board.start_new(), gamestate: Gamestate.new()},
+     @timeout}
   end
 
   def handle_call({:add_player, name}, _from, state_data) do
@@ -73,6 +75,10 @@ defmodule ChessEngine.Game do
     end
   end
 
+  def handle_info(:timeout, state_data) do
+    {:stop, {:shutdown, :timeout}, state_data}
+  end
+
   defp update_player2_name(state_data, name), do: put_in(state_data.player2.name, name)
 
   defp update_gamestate(state_data, gamestate), do: %{state_data | gamestate: gamestate}
@@ -83,5 +89,5 @@ defmodule ChessEngine.Game do
     |> put_in([:player2, :color], player2_color)
   end
 
-  defp reply_success(state_data, reply), do: {:reply, reply, state_data}
+  defp reply_success(state_data, reply), do: {:reply, reply, state_data, @timeout}
 end
