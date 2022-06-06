@@ -17,35 +17,35 @@ defmodule ChessEngine.Board.Setup do
 
   defp set_pawns(board, :white) do
     @files
-    |> Enum.map(fn file -> {create_position(file, 2), create_piece(:pawn, :white)} end)
-    |> Enum.reduce(board, fn {pawn, position}, board ->
-      position_piece(board, {pawn, position})
+    |> Enum.map(fn file -> {create_position(file, 2), create_piece(:white, :pawn)} end)
+    |> Enum.reduce(board, fn {position, pawn}, board ->
+      put_piece_on_board(board, {position, pawn})
     end)
   end
 
   defp set_pawns(board, :black) do
     @files
-    |> Enum.map(fn file -> {create_position(file, 7), create_piece(:pawn, :black)} end)
-    |> Enum.reduce(board, fn {pawn, position}, board ->
-      position_piece(board, {pawn, position})
+    |> Enum.map(fn file -> {create_position(file, 7), create_piece(:black, :pawn)} end)
+    |> Enum.reduce(board, fn {position, pawn}, board ->
+      put_piece_on_board(board, {position, pawn})
     end)
   end
 
   defp set_other_pieces(board, :white) do
     @files
     |> Enum.zip(@pieces)
-    |> Enum.map(fn {file, type} -> {create_position(file, 1), create_piece(type, :white)} end)
-    |> Enum.reduce(board, fn {piece, position}, board ->
-      position_piece(board, {piece, position})
+    |> Enum.map(fn {file, type} -> {create_position(file, 1), create_piece(:white, type)} end)
+    |> Enum.reduce(board, fn {position, piece}, board ->
+      put_piece_on_board(board, {position, piece})
     end)
   end
 
   defp set_other_pieces(board, :black) do
     @files
     |> Enum.zip(@pieces)
-    |> Enum.map(fn {file, type} -> {create_position(file, 8), create_piece(type, :black)} end)
-    |> Enum.reduce(board, fn {piece, position}, board ->
-      position_piece(board, {piece, position})
+    |> Enum.map(fn {file, type} -> {create_position(file, 8), create_piece(:black, type)} end)
+    |> Enum.reduce(board, fn {position, piece}, board ->
+      put_piece_on_board(board, {position, piece})
     end)
   end
 
@@ -54,8 +54,8 @@ defmodule ChessEngine.Board.Setup do
     position
   end
 
-  defp create_piece(type, color) do
-    {:ok, piece} = Piece.new(type, color)
+  defp create_piece(color, type) do
+    {:ok, piece} = Piece.new(color, type)
     piece
   end
 end
