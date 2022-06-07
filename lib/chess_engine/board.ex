@@ -1,5 +1,6 @@
 defmodule ChessEngine.Board do
   alias ChessEngine.{Board, Piece, Position}
+  alias ChessEngine.Piece.Movements.Movesets
 
   @enforce_keys [
     :pieces_on_the_board,
@@ -21,6 +22,10 @@ defmodule ChessEngine.Board do
 
   def start_new, do: ChessEngine.Board.Setup.start_position(Board.new())
 
+  def put_piece_on_board(board, {%Position{} = position, %Piece{} = piece}) do
+    put_in(board.pieces_on_the_board[position], piece)
+  end
+
   def move_piece(
         board,
         {%Position{} = current_position, %Position{} = target_position}
@@ -39,9 +44,9 @@ defmodule ChessEngine.Board do
 
       update_position_on_board(board, current_position, target_position, piece)
     else
-      :piece_not_found -> :no_piece_on_current_position
-      false -> :square_occupied_by_own_piece
-      :move_not_possible_because_of_check -> :move_not_possible_because_of_check
+      :piece_not_found -> {:error, :no_piece_on_current_position}
+      false -> {:error, :square_occupied_by_own_piece}
+      :king_is_checked -> :king_is_checked
     end
   end
 
@@ -50,17 +55,26 @@ defmodule ChessEngine.Board do
   def find_piece(board, %Position{} = position),
     do: Map.get(board.pieces_on_the_board, position, :piece_not_found)
 
-  def capture_piece(board, %Piece{color: :white} = enemy_piece, target_position) do
+  defp capture_piece(board, %Piece{color: :white} = enemy_piece, target_position) do
+    board =
+      update_in(board.captured_pieces_white, fn captured_pieces ->
+        [enemy_piece | captured_pieces]
+      end)
+
     board = put_in(board.captured_pieces_white, enemy_piece)
     update_in(board.pieces_on_the_board, &Map.delete(&1, target_position))
   end
 
-  def capture_piece(board, %Piece{color: :black} = enemy_piece, target_position) do
-    board = put_in(board.captured_pieces_black, enemy_piece)
+  defp capture_piece(board, %Piece{color: :black} = enemy_piece, target_position) do
+    board =
+      update_in(board.captured_pieces_black, fn captured_pieces ->
+        [enemy_piece | captured_pieces]
+      end)
+
     update_in(board.pieces_on_the_board, &Map.delete(&1, target_position))
   end
 
-  def square_not_occupied_by_own_piece?(board, color, %Position{} = target_position) do
+  defp square_not_occupied_by_own_piece?(board, color, %Position{} = target_position) do
     case Board.find_piece(board, target_position) do
       %Piece{color: ^color} -> false
       _square_is_empty_or_occupied_by_enemy_piece -> true
@@ -70,20 +84,32 @@ defmodule ChessEngine.Board do
   defp opponent_color(:white), do: :black
   defp opponent_color(:black), do: :white
 
-  def not_check?(_board, _color, %Position{} = _target_position) do
+  defp not_check?(_board, _color, %Position{} = _target_position) do
     true
   end
 
-  def update_position_on_board(board, current_position, target_position, piece) do
+  defp movement_in_moveset?(
+         %Piece{} = piece,
+         %Position{} = _current_position,
+         %Position{} = target_position
+       ) do
+    Enum.any?(Movesets.movements(piece), fn movement ->
+      cond do
+        is_list(movement) ->
+          Enum.member?(movement, target_position)
+
+        is_map(movement) ->
+          movement == target_position
+      end
+    end)
+  end
+
+  defp update_position_on_board(board, current_position, target_position, piece) do
     pieces_on_the_board =
       board.pieces_on_the_board
       |> Map.delete(current_position)
       |> put_in([target_position], piece)
 
     %Board{board | pieces_on_the_board: pieces_on_the_board}
-  end
-
-  def put_piece_on_board(board, {%Position{} = position, %Piece{} = piece}) do
-    put_in(board.pieces_on_the_board[position], piece)
   end
 end

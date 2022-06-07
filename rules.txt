@@ -9,15 +9,12 @@ Special moves
 
 Inspect
 - Path is free?
-- Enemy piece is taken?
 - King is not checked?
 
 Done:
 Modules
 - Position chess pieces
-- Coordinate
 - Moveslist
-- Move
 - Piece (pawn, bishop, knight, rook, queen, king)
 - Board
 
@@ -27,3 +24,4 @@ Done moves:
 
 Done inspect
 - Square is not occupied by own piece?
+- Enemy piece is taken?
