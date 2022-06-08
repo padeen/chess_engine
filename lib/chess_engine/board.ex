@@ -50,25 +50,24 @@ defmodule ChessEngine.Board do
     end
   end
 
-  def move_piece(_board, {_current_position, _target_position}), do: :piece_not_moved
+  def move_piece(_board, {_current_position, _target_position}), do: {:error, :piece_not_moved}
 
   def find_piece(board, %Position{} = position),
     do: Map.get(board.pieces_on_the_board, position, :piece_not_found)
 
   defp capture_piece(board, %Piece{color: :white} = enemy_piece, target_position) do
     board =
-      update_in(board.captured_pieces_white, fn captured_pieces ->
-        [enemy_piece | captured_pieces]
+      update_in(board.captured_pieces_white, fn captured_pieces_white ->
+        [enemy_piece | captured_pieces_white]
       end)
 
-    board = put_in(board.captured_pieces_white, enemy_piece)
     update_in(board.pieces_on_the_board, &Map.delete(&1, target_position))
   end
 
   defp capture_piece(board, %Piece{color: :black} = enemy_piece, target_position) do
     board =
-      update_in(board.captured_pieces_black, fn captured_pieces ->
-        [enemy_piece | captured_pieces]
+      update_in(board.captured_pieces_black, fn captured_pieces_black ->
+        [enemy_piece | captured_pieces_black]
       end)
 
     update_in(board.pieces_on_the_board, &Map.delete(&1, target_position))
@@ -77,7 +76,7 @@ defmodule ChessEngine.Board do
   defp square_not_occupied_by_own_piece?(board, color, %Position{} = target_position) do
     case Board.find_piece(board, target_position) do
       %Piece{color: ^color} -> false
-      _square_is_empty_or_occupied_by_enemy_piece -> true
+      _ -> true
     end
   end
 
