@@ -19,7 +19,7 @@ Start first game
 
 `{:ok, joe} = Game.start_link("Joe")`
 
-`Game.add_player(game, "Hisaishi")`
+`Game.add_player(joe, "Hisaishi")`
 
 Check game state
 
@@ -29,7 +29,7 @@ Start second game concurrently
 
 `{:ok, frank} = Game.start_link("Frank")`
 
-`Game.add_player(game, "Zappa")`
+`Game.add_player(frank, "Zappa")`
 
 Check game state
 

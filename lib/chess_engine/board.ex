@@ -28,7 +28,8 @@ defmodule ChessEngine.Board do
 
   def move_piece(
         board,
-        {%Position{} = current_position, %Position{} = target_position}
+        %Position{} = current_position,
+        %Position{} = target_position
       )
       when current_position != target_position do
     with %Piece{color: color} = piece <- find_piece(board, current_position),
@@ -37,9 +38,9 @@ defmodule ChessEngine.Board do
       opponent_color = opponent_color(color)
 
       board =
-        case find_piece(board, target_position) do
+        case square_is_empty?(board, target_position) do
           %Piece{color: ^opponent_color} = piece -> capture_piece(board, piece, target_position)
-          :piece_not_found -> board
+          true -> board
         end
 
       update_position_on_board(board, current_position, target_position, piece)
@@ -50,10 +51,13 @@ defmodule ChessEngine.Board do
     end
   end
 
-  def move_piece(_board, {_current_position, _target_position}), do: {:error, :piece_not_moved}
+  def move_piece(_board, _current_position, _target_position), do: {:error, :piece_not_moved}
 
   def find_piece(board, %Position{} = position),
     do: Map.get(board.pieces_on_the_board, position, :piece_not_found)
+
+  def square_is_empty?(board, %Position{} = position),
+    do: Map.get(board.pieces_on_the_board, position, true)
 
   defp capture_piece(board, %Piece{color: :white} = enemy_piece, target_position) do
     board =

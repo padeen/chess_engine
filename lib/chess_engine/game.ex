@@ -65,10 +65,12 @@ defmodule ChessEngine.Game do
     with {:ok, _gamestate} <- Gamestate.check(state_data.gamestate, {:move_piece, player_color}),
          {:ok, current_position} <- Position.new(current_file, current_rank),
          {:ok, target_position} <- Position.new(target_file, target_rank) do
-      case Move.move_piece(state_data.board, :white, current_position, target_position) do
-        :captured_opponents_piece -> {:ok, :captured_piece}
-        :no_capture -> {:ok, :no_capture}
-        :movement_not_in_moveset -> :movement_not_in_moveset
+      case Board.move_piece(state_data.board, current_position, target_position) do
+        %Board{} = board ->
+          {:reply, board, state_data}
+          # :captured_opponents_piece -> {:ok, :captured_piece}
+          # :no_capture -> {:ok, :no_capture}
+          # :movement_not_in_moveset -> :movement_not_in_moveset
       end
     else
       :error -> {:reply, :error, state_data}
